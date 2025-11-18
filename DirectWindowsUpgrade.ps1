@@ -39,6 +39,19 @@ $TEMP_DIR = $env:temporary_directory                    # Temporary directory
 $LOG_FILE = "C:\Win11_Upgrade_Progress.log"      # Main log file
 $MONITOR_LOG = "C:\Win11_Monitor.log"            # Process monitor log file
 
+# BEHAVIOR SETTINGS - NORMALIZE ENVIRONMENT VARIABLES TO REAL BOOLEANS
+
+# Safely convert Datto env vars (True/False) to real booleans
+if ($env:bypass_confirm -ne $null -and $env:bypass_confirm -ne '') {
+    $BYPASS_CONFIRMATION = [System.Convert]::ToBoolean($env:bypass_confirm)
+}
+
+if ($env:automatic_reboot -ne $null -and $env:automatic_reboot -ne '') {
+    $ALLOW_AUTOMATIC_REBOOT = [System.Convert]::ToBoolean($env:automatic_reboot)
+}
+
+Write-Host "Bypass confirmation: $BYPASS_CONFIRMATION (from '$($env:bypass_confirm)')"
+Write-Host "Allow automatic reboot: $ALLOW_AUTOMATIC_REBOOT (from '$($env:automatic_reboot)')"
 
 
 #######################################################################
@@ -79,7 +92,7 @@ Write-Host "- The process may appear to stall at times, but this is normal"
 Write-Host "- Do not interrupt the process once it has started"
 Write-Host ""
 
-if (-not $env:bypass_confirm) {
+if (-not $BYPASS_CONFIRMATION) {
     $confirmation = Read-Host "Do you want to continue with the Windows 11 upgrade? (y/n)"
     if ($confirmation -ne 'y' -and $confirmation -ne 'Y') {
         Write-Host "Windows 11 upgrade cancelled by user."
@@ -181,7 +194,7 @@ if (Test-Path $isoUrl) {
     $extension = [System.IO.Path]::GetExtension($isoUrl).ToLower()
     if ($extension -ne ".iso") {
         Write-Host "Warning: The file does not have an .iso extension. It may not be a valid Windows installation image." -ForegroundColor Yellow
-        if (-not $env:bypass_confirm) {
+        if (-not $BYPASS_CONFIRMATION) {
             $continue = Read-Host "Do you want to continue anyway? (y/n)"
             if ($continue -ne 'y' -and $continue -ne 'Y') {
                 Write-Host "Operation cancelled by user."
@@ -198,7 +211,7 @@ if (Test-Path $isoUrl) {
     if ($fileSizeMB -lt 3000) {
         Write-Host "Warning: The ISO file is only $fileSizeMB MB in size, which is unusually small for a Windows 11 ISO." -ForegroundColor Yellow
         Write-Host "A typical Windows 11 ISO is 4-6 GB in size." -ForegroundColor Yellow
-        if (-not $env:bypass_confirm) {
+        if (-not $BYPASS_CONFIRMATION) {
             $continue = Read-Host "Do you want to continue anyway? (y/n)"
             if ($continue -ne 'y' -and $continue -ne 'Y') {
                 Write-Host "Operation cancelled by user."
@@ -265,7 +278,7 @@ if (-not $isLocalFile) {
             if ($fileSizeMB -lt 3000) {
                 Write-Host "Warning: The downloaded ISO is only $fileSizeMB MB, which is unusually small for a Windows 11 ISO." -ForegroundColor Yellow
                 Write-Host "This might indicate a partial download or incorrect ISO source." -ForegroundColor Yellow
-                if (-not $env:bypass_confirm) {
+                if (-not $BYPASS_CONFIRMATION) {
                     $continue = Read-Host "Do you want to continue anyway? (y/n)"
                     if ($continue -ne 'y' -and $continue -ne 'Y') {
                         Write-Host "Operation cancelled by user."
@@ -570,7 +583,7 @@ PreinstallKitSpace=8000
     )
 
     # Add /noreboot switch if automatic reboots are disabled
-    if (-not $env:automatic_reboot) {
+    if (-not $ALLOW_AUTOMATIC_REBOOT) {
         $arguments += "/noreboot"
         Write-Host "Automatic reboots are disabled. The system will need to be manually rebooted to complete the upgrade."
     } else {
@@ -750,7 +763,7 @@ Windows Registry Editor Version 5.00
             $setupCommand = "setupprep.exe /product server /auto upgrade /quiet /compat ignorewarning /migratedrivers all /dynamicupdate enable /eula accept"
 
             # Add noreboot switch if automatic reboots are disabled
-            if (-not $env:automatic_reboot) {
+            if (-not $ALLOW_AUTOMATIC_REBOOT) {
                 $setupCommand += " /noreboot"
             }
 
@@ -873,7 +886,7 @@ goto check
 }
 
 # Final progress information and verification
-if ($env:automatic_reboot) {
+if ($ALLOW_AUTOMATIC_REBOOT) {
     Write-ProgressLog "Windows 11 upgrade process initiated. The system will reboot automatically when the upgrade is complete."
 } else {
     Write-ProgressLog "Windows 11 upgrade process initiated. Manual reboot will be required when the upgrade preparation is complete."
