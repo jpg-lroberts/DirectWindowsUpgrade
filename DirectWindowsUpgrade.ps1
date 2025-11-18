@@ -39,9 +39,7 @@ $TEMP_DIR = $env:temporary_directory                    # Temporary directory
 $LOG_FILE = "C:\Win11_Upgrade_Progress.log"      # Main log file
 $MONITOR_LOG = "C:\Win11_Monitor.log"            # Process monitor log file
 
-# BEHAVIOR SETTINGS
-$BYPASS_CONFIRMATION = $env:bypass_confirm                    # Set to $true to skip all confirmation prompts
-$ALLOW_AUTOMATIC_REBOOT = $env:automatic_reboot                  # Set to $false to prevent automatic reboots
+
 
 #######################################################################
 # SCRIPT BEGINS HERE - DO NOT MODIFY BELOW THIS LINE UNLESS NECESSARY
@@ -81,7 +79,7 @@ Write-Host "- The process may appear to stall at times, but this is normal"
 Write-Host "- Do not interrupt the process once it has started"
 Write-Host ""
 
-if (-not $BYPASS_CONFIRMATION) {
+if (-not $env:bypass_confirm) {
     $confirmation = Read-Host "Do you want to continue with the Windows 11 upgrade? (y/n)"
     if ($confirmation -ne 'y' -and $confirmation -ne 'Y') {
         Write-Host "Windows 11 upgrade cancelled by user."
@@ -183,7 +181,7 @@ if (Test-Path $isoUrl) {
     $extension = [System.IO.Path]::GetExtension($isoUrl).ToLower()
     if ($extension -ne ".iso") {
         Write-Host "Warning: The file does not have an .iso extension. It may not be a valid Windows installation image." -ForegroundColor Yellow
-        if (-not $BYPASS_CONFIRMATION) {
+        if (-not $env:bypass_confirm) {
             $continue = Read-Host "Do you want to continue anyway? (y/n)"
             if ($continue -ne 'y' -and $continue -ne 'Y') {
                 Write-Host "Operation cancelled by user."
@@ -200,7 +198,7 @@ if (Test-Path $isoUrl) {
     if ($fileSizeMB -lt 3000) {
         Write-Host "Warning: The ISO file is only $fileSizeMB MB in size, which is unusually small for a Windows 11 ISO." -ForegroundColor Yellow
         Write-Host "A typical Windows 11 ISO is 4-6 GB in size." -ForegroundColor Yellow
-        if (-not $BYPASS_CONFIRMATION) {
+        if (-not $env:bypass_confirm) {
             $continue = Read-Host "Do you want to continue anyway? (y/n)"
             if ($continue -ne 'y' -and $continue -ne 'Y') {
                 Write-Host "Operation cancelled by user."
@@ -267,7 +265,7 @@ if (-not $isLocalFile) {
             if ($fileSizeMB -lt 3000) {
                 Write-Host "Warning: The downloaded ISO is only $fileSizeMB MB, which is unusually small for a Windows 11 ISO." -ForegroundColor Yellow
                 Write-Host "This might indicate a partial download or incorrect ISO source." -ForegroundColor Yellow
-                if (-not $BYPASS_CONFIRMATION) {
+                if (-not $env:bypass_confirm) {
                     $continue = Read-Host "Do you want to continue anyway? (y/n)"
                     if ($continue -ne 'y' -and $continue -ne 'Y') {
                         Write-Host "Operation cancelled by user."
@@ -572,7 +570,7 @@ PreinstallKitSpace=8000
     )
 
     # Add /noreboot switch if automatic reboots are disabled
-    if (-not $ALLOW_AUTOMATIC_REBOOT) {
+    if (-not $env:automatic_reboot) {
         $arguments += "/noreboot"
         Write-Host "Automatic reboots are disabled. The system will need to be manually rebooted to complete the upgrade."
     } else {
@@ -752,7 +750,7 @@ Windows Registry Editor Version 5.00
             $setupCommand = "setupprep.exe /product server /auto upgrade /quiet /compat ignorewarning /migratedrivers all /dynamicupdate enable /eula accept"
 
             # Add noreboot switch if automatic reboots are disabled
-            if (-not $ALLOW_AUTOMATIC_REBOOT) {
+            if (-not $env:automatic_reboot) {
                 $setupCommand += " /noreboot"
             }
 
@@ -875,7 +873,7 @@ goto check
 }
 
 # Final progress information and verification
-if ($ALLOW_AUTOMATIC_REBOOT) {
+if ($env:automatic_reboot) {
     Write-ProgressLog "Windows 11 upgrade process initiated. The system will reboot automatically when the upgrade is complete."
 } else {
     Write-ProgressLog "Windows 11 upgrade process initiated. Manual reboot will be required when the upgrade preparation is complete."
