@@ -14,6 +14,7 @@ Windows 11 systems on older major versions (21H2, 22H2) often cannot upgrade to 
 ## Features
 
 - **Bypasses Hardware Requirements**: Overcomes TPM, CPU, RAM, SecureBoot and other compatibility blocks
+- **Modified for DattoRMM Compatability with Variables below 
 - **Automated ISO Handling**: Downloads or uses local ISO files (configurable)
 - **Dependency Management**: Automatically installs 7-Zip if not present
 - **Silent Operation**: Runs completely in the background with no user interaction
@@ -86,5 +87,6 @@ All configurable parameters are at the top of the script:
 - `$ALLOW_AUTOMATIC_REBOOT` - Enable/disable automatic reboots
 
 ## Attribution
+
 
 This script combines techniques from multiple sources, including AveYo's MediaCreationTool project, for maximum compatibility with different Windows 11 versions and hardware configurations.
