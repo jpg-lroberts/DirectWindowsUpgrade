@@ -31,17 +31,17 @@
 # IMPORTANT: The ISO must contain the Windows 11 version you want to upgrade to.
 # Business editions are recommended as they have fewer issues with silent upgrades.
 # You can download official ISOs from: https://massgrave.dev/genuine-installation-media.html
-$WIN11_ISO_SOURCE = "https://replace/this/url/with/your/iso/windows.iso"
+$WIN11_ISO_SOURCE = $env:win11_iso
 
 # WORKING DIRECTORIES - you can modify these if needed
-$WORKING_DIR = "C:\Win11Upgrade"                 # Main working directory
-$TEMP_DIR = "C:\Windows\Temp"                    # Temporary directory
+$WORKING_DIR = $env:working_directory                # Main working directory
+$TEMP_DIR = $env:temporary_directory                    # Temporary directory
 $LOG_FILE = "C:\Win11_Upgrade_Progress.log"      # Main log file
 $MONITOR_LOG = "C:\Win11_Monitor.log"            # Process monitor log file
 
 # BEHAVIOR SETTINGS
-$BYPASS_CONFIRMATION = $false                    # Set to $true to skip all confirmation prompts
-$ALLOW_AUTOMATIC_REBOOT = $true                  # Set to $false to prevent automatic reboots
+$BYPASS_CONFIRMATION = $env:bypass_confirm                    # Set to $true to skip all confirmation prompts
+$ALLOW_AUTOMATIC_REBOOT = $env:automatic_reboot                  # Set to $false to prevent automatic reboots
 
 #######################################################################
 # SCRIPT BEGINS HERE - DO NOT MODIFY BELOW THIS LINE UNLESS NECESSARY
